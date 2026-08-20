@@ -1,0 +1,33 @@
+{
+  "schema_version": "1.0",
+  "classification": "IMPLEMENTATION_CANDIDATE",
+  "canonical_authority_granted": false,
+  "live_trading_authorized": false,
+  "sources": [
+    {
+      "name": "Harmony360QES Appendix B",
+      "drive_id": "1tzuBHFOK5cjLYqi6Xl5Zmv2aAb6Tcyyk5FK20K50Nxo",
+      "role": "financial architecture specification",
+      "classification": "RECOVERED_SPECIFICATION_CANDIDATE"
+    },
+    {
+      "name": "Financial Cycle Studies & Market Predictions",
+      "drive_id": "13GQaQ4LdO0QOCFxh4RLQ6FO8GIJnnsoTUGiZ6Gp7k30",
+      "role": "research archive",
+      "classification": "EXPERIMENTAL_WITH_PLACEHOLDERS"
+    },
+    {
+      "name": "Analysis of Financial Cycle Studies & Market Predictions",
+      "drive_id": "1wAF9WBFneFsoYgPEg-ZjJcuzHpqFoPxxFBkx_4xMbJs",
+      "role": "critical design review",
+      "classification": "REVIEW_EVIDENCE"
+    },
+    {
+      "name": "Canonical recovery source review",
+      "drive_id": "1I8i6LfvBIWFPlfCdiPkPHGxq8POHA9iw",
+      "role": "implementation recovery map",
+      "classification": "RECOVERY_EVIDENCE"
+    }
+  ]
+}
+
