@@ -1,0 +1,12 @@
+__pycache__/
+.pytest_cache/
+*.pyc
+.venv/
+har360_output/
+runs/
+*.mp4
+*.wav
+*.mp3
+client_secret*.json
+token*.json
+.env
