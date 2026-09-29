@@ -3,7 +3,10 @@ import json
 
 import pytest
 
-from harmonic_crypto_vault import HarmonicCryptoVault, Harmony360KeyRegistry
+from reconciliation.crypto_vault.harmonic_crypto_vault import (
+    HarmonicCryptoVault,
+    Harmony360KeyRegistry,
+)
 
 
 def test_round_trip_and_nonce_uniqueness(tmp_path):
