@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "harmony360-runtime-spine"
-version = "1.0.0"
+version = "1.1.0"
 description = "Canonical Harmony360 runtime spine reconciliation"
 requires-python = ">=3.10"
 dependencies = [
