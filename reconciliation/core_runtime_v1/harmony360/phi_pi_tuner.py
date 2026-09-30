@@ -1,11 +1,12 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import math
 import random
 from dataclasses import dataclass, asdict
 from pathlib import Path
-from typing import Any, Iterable, Sequence
+from typing import Any, Sequence
 
 import numpy as np
 import torch
@@ -118,11 +119,7 @@ class PhiPiTuner(Harmony360):
         candidates: Sequence[TuningCandidate] | None = None,
         maximize: bool = False,
     ) -> dict[str, Any]:
-        """Evaluate every declared candidate with a caller-supplied objective.
-
-        The objective receives one TuningCandidate and returns a numeric score.
-        Lower is better unless maximize=True.
-        """
+        """Evaluate every declared candidate with a caller-supplied objective."""
         pool = tuple(candidates or self.candidates)
         if not pool:
             raise ValueError("candidate list cannot be empty")
@@ -164,11 +161,10 @@ class PhiPiTuner(Harmony360):
 
         Modes:
         - lr_decay: after each epoch, lr <- base_lr / candidate.value**epoch.
-          baseline value=1.0 therefore remains constant.
         - init_scale: multiply the common seeded initial parameter state by the
           candidate value before training.
 
-        All candidates use identical architecture, corpus split, seeds, epochs,
+        Every candidate uses identical architecture, corpus split, seeds, epochs,
         optimizer family, and batch budget.
         """
         config = config or AblationConfig()
@@ -192,11 +188,9 @@ class PhiPiTuner(Harmony360):
         pool = tuple(candidates or self.candidates)
         loss_fn = nn.CrossEntropyLoss()
         device = torch.device(config.device)
-
         records: list[dict[str, Any]] = []
 
         for seed in config.seeds:
-            # Common seeded initial state for every candidate at this seed.
             self._seed(seed)
             reference = TinyCausalLanguageModel(
                 embedding_dim=config.embedding_dim,
@@ -232,11 +226,7 @@ class PhiPiTuner(Harmony360):
                     batch_size=config.batch_size,
                     shuffle=False,
                 )
-
-                optimizer = torch.optim.AdamW(
-                    model.parameters(),
-                    lr=config.learning_rate,
-                )
+                optimizer = torch.optim.AdamW(model.parameters(), lr=config.learning_rate)
 
                 initial_val_loss = self._mean_loss(model, val_loader, loss_fn, device)
                 epoch_train_losses: list[float] = []
@@ -339,11 +329,12 @@ class PhiPiTuner(Harmony360):
         snapshot_path = self.base_dir / f"{simulation_id}_{mode}_snapshot.har360.json"
         snapper.export_snapshot(snapshot, snapshot_path)
 
+        artifact_sha256 = hashlib.sha256(out_path.read_bytes()).hexdigest()
         ledger = HAR360LedgerManager(self.base_dir / "PHI_PI_TUNER_LEDGER.jsonl")
         ledger.append_entry(
             event_type="PHI_PI_ABLATION_COMPLETED",
             artifact_id=out_path.name,
-            artifact_sha256=snapper._sha256_file(out_path),
+            artifact_sha256=artifact_sha256,
             status="PASS",
             lineage="historical PhiPiTuner -> governed controlled ablation v1",
             metadata={
