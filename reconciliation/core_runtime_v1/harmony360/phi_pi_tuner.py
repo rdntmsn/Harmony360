@@ -16,6 +16,7 @@ from torch.utils.data import DataLoader
 from .constants import PHI, PI
 from .core import Harmony360
 from .ledger import HAR360LedgerManager
+from .measurement import Harmony360MeasurementContract, MeasurementSemantics
 from .snapshot import Harmony360Snapshot
 from .trainer import ByteCausalDataset, TinyCausalLanguageModel
 
@@ -69,12 +70,14 @@ class PhiPiTuner(Harmony360):
 
     Historical lineage: PhiPiTuner.optimize_parameters / export_best_fit_results.
     Reconciliation boundary: phi/pi are candidates, not privileged conclusions.
-    The tuner compares Harmony360 constants against explicit controls under the
-    same model, corpus, seeds, and training budget.
+
+    Measurement rule v1.1:
+    every arm, including baseline/control arms, is measured through the canonical
+    Harmony360MeasurementContract. Intervention and measurement remain separate.
     """
 
     FORMAT = "HARMONY360_PHI_PI_TUNER"
-    VERSION = "1.0"
+    VERSION = "1.1"
 
     def __init__(
         self,
@@ -87,6 +90,7 @@ class PhiPiTuner(Harmony360):
         self.base_dir.mkdir(parents=True, exist_ok=True)
         self.candidates = tuple(candidates)
         self.last_result: dict[str, Any] | None = None
+        self.measurement = Harmony360MeasurementContract()
 
     @staticmethod
     def _seed(seed: int) -> None:
@@ -119,7 +123,6 @@ class PhiPiTuner(Harmony360):
         candidates: Sequence[TuningCandidate] | None = None,
         maximize: bool = False,
     ) -> dict[str, Any]:
-        """Evaluate every declared candidate with a caller-supplied objective."""
         pool = tuple(candidates or self.candidates)
         if not pool:
             raise ValueError("candidate list cannot be empty")
@@ -157,16 +160,7 @@ class PhiPiTuner(Harmony360):
         config: AblationConfig | None = None,
         candidates: Sequence[TuningCandidate] | None = None,
     ) -> dict[str, Any]:
-        """Compare constants in a controlled verification-scale LM experiment.
-
-        Modes:
-        - lr_decay: after each epoch, lr <- base_lr / candidate.value**epoch.
-        - init_scale: multiply the common seeded initial parameter state by the
-          candidate value before training.
-
-        Every candidate uses identical architecture, corpus split, seeds, epochs,
-        optimizer family, and batch budget.
-        """
+        """Compare constants while measuring every arm through Harmony360 core math."""
         config = config or AblationConfig()
         config.validate()
         if mode not in {"lr_decay", "init_scale"}:
@@ -189,6 +183,7 @@ class PhiPiTuner(Harmony360):
         loss_fn = nn.CrossEntropyLoss()
         device = torch.device(config.device)
         records: list[dict[str, Any]] = []
+        arm_records: list[dict[str, Any]] = []
 
         for seed in config.seeds:
             self._seed(seed)
@@ -230,12 +225,16 @@ class PhiPiTuner(Harmony360):
 
                 initial_val_loss = self._mean_loss(model, val_loader, loss_fn, device)
                 epoch_train_losses: list[float] = []
+                learning_rates: list[float] = []
 
                 for epoch in range(config.epochs):
                     if mode == "lr_decay":
                         lr = config.learning_rate / (candidate.value ** epoch)
                         for group in optimizer.param_groups:
                             group["lr"] = lr
+                    else:
+                        lr = config.learning_rate
+                    learning_rates.append(float(lr))
 
                     model.train()
                     batch_losses: list[float] = []
@@ -253,6 +252,66 @@ class PhiPiTuner(Harmony360):
                     epoch_train_losses.append(float(np.mean(batch_losses)))
 
                 final_val_loss = self._mean_loss(model, val_loader, loss_fn, device)
+
+                measured = {
+                    "validation_loss": self.measurement.measure_series(
+                        [initial_val_loss, final_val_loss],
+                        semantics=MeasurementSemantics(
+                            label="validation_loss",
+                            value_units="cross_entropy",
+                            coordinate_units="checkpoint",
+                            interpretation="initial and final validation cross-entropy loss",
+                        ),
+                        coordinates=[0.0, float(config.epochs)],
+                    ),
+                    "epoch_train_loss": self.measurement.measure_series(
+                        epoch_train_losses,
+                        semantics=MeasurementSemantics(
+                            label="epoch_train_loss",
+                            value_units="cross_entropy",
+                            coordinate_units="epoch",
+                            interpretation="mean training loss per epoch",
+                        ),
+                        coordinates=[float(i + 1) for i in range(len(epoch_train_losses))],
+                    ),
+                    "learning_rate": self.measurement.measure_series(
+                        learning_rates,
+                        semantics=MeasurementSemantics(
+                            label="learning_rate",
+                            value_units="optimizer_step_scale",
+                            coordinate_units="epoch",
+                            interpretation="learning-rate schedule actually applied",
+                        ),
+                        coordinates=[float(i + 1) for i in range(len(learning_rates))],
+                    ),
+                }
+
+                flags = {
+                    "harmony360_measurement": True,
+                    "phi_pi_modulation_intervention": False,
+                    "phi_constant_intervention": candidate.name == "phi",
+                    "pi_over_2_control": candidate.name == "pi_over_2",
+                    "lr_decay_intervention": mode == "lr_decay" and candidate.name != "baseline",
+                    "init_scale_intervention": mode == "init_scale" and candidate.name != "baseline",
+                    "fractal_structure_intervention": False,
+                    "recl_intervention": False,
+                }
+
+                domain_metrics = {
+                    "initial_validation_loss": initial_val_loss,
+                    "final_validation_loss": final_val_loss,
+                    "candidate_value": candidate.value,
+                    "seed": seed,
+                }
+
+                arm = self.measurement.build_arm_record(
+                    arm_name=f"{candidate.name}:seed:{seed}",
+                    domain_metrics=domain_metrics,
+                    measured_series=measured,
+                    intervention_flags=flags,
+                )
+                arm_records.append(arm)
+
                 records.append(
                     {
                         "candidate": candidate.name,
@@ -263,6 +322,9 @@ class PhiPiTuner(Harmony360):
                         "initial_validation_loss": initial_val_loss,
                         "final_validation_loss": final_val_loss,
                         "epoch_train_losses": epoch_train_losses,
+                        "learning_rates": learning_rates,
+                        "harmony360_measurement": measured,
+                        "intervention_flags": flags,
                     }
                 )
 
@@ -283,9 +345,18 @@ class PhiPiTuner(Harmony360):
         phi_row = next((r for r in aggregate if r["name"] == "phi"), None)
         baseline_row = next((r for r in aggregate if r["name"] == "baseline"), None)
 
+        experiment_record = {
+            "format": "HARMONY360_EXPERIMENT_RECORD",
+            "version": "1.0",
+            "simulation_id": simulation_id,
+            "arms": arm_records,
+        }
+        if not self.measurement.validate_experiment_record(experiment_record):
+            raise RuntimeError("Harmony360 measurement contract validation failed")
+
         result = {
             "format": "HARMONY360_TRAINING_ABLATION",
-            "version": "1.0",
+            "version": "1.1",
             "simulation_id": simulation_id,
             "mode": mode,
             "config": asdict(config),
@@ -295,6 +366,7 @@ class PhiPiTuner(Harmony360):
             "aggregate": aggregate,
             "ranking": ranking,
             "best_observed_candidate": ranking[0],
+            "measurement_contract": experiment_record,
             "phi_vs_baseline": (
                 None
                 if phi_row is None or baseline_row is None
@@ -309,8 +381,10 @@ class PhiPiTuner(Harmony360):
             ),
             "scope_of_conclusion": (
                 "Controlled verification-scale comparison of declared constants under identical "
-                "architecture, data split, seeds, optimizer family, and training budget. It does "
-                "not establish universal superiority of any constant or Harmony360 mechanism."
+                "architecture, data split, seeds, optimizer family, and training budget. Every "
+                "arm is measured through the canonical Harmony360 mathematical measurement layer. "
+                "Intervention remains separate from measurement. Results do not establish universal "
+                "superiority or physical significance."
             ),
         }
 
@@ -323,7 +397,10 @@ class PhiPiTuner(Harmony360):
             result,
             label="phi_pi_ablation",
             source="PhiPiTuner.run_language_model_ablation",
-            lineage="historical PhiPiTuner -> governed controlled ablation v1",
+            lineage=(
+                "historical PhiPiTuner -> governed controlled ablation v1 -> "
+                "canonical Harmony360 measurement contract v1"
+            ),
             metadata={"claim_type": "experimental/model_training_ablation"},
         )
         snapshot_path = self.base_dir / f"{simulation_id}_{mode}_snapshot.har360.json"
@@ -336,11 +413,15 @@ class PhiPiTuner(Harmony360):
             artifact_id=out_path.name,
             artifact_sha256=artifact_sha256,
             status="PASS",
-            lineage="historical PhiPiTuner -> governed controlled ablation v1",
+            lineage=(
+                "historical PhiPiTuner -> governed controlled ablation v1 -> "
+                "canonical Harmony360 measurement contract v1"
+            ),
             metadata={
                 "mode": mode,
                 "run_count": len(records),
                 "best_observed_candidate": ranking[0]["name"],
+                "measurement_contract_valid": True,
             },
         )
 
