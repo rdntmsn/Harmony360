@@ -12,6 +12,7 @@ from .trainer import (
     TinyCausalLanguageModel,
     load_trained_language_model,
 )
+from .measurement import Harmony360MeasurementContract, MeasurementSemantics
 from .phi_pi_tuner import (
     PhiPiTuner,
     TuningCandidate,
@@ -31,6 +32,8 @@ __all__ = [
     "Harmony360TrainingConfig",
     "TinyCausalLanguageModel",
     "load_trained_language_model",
+    "Harmony360MeasurementContract",
+    "MeasurementSemantics",
     "PhiPiTuner",
     "TuningCandidate",
     "AblationConfig",
@@ -39,4 +42,4 @@ __all__ = [
     "save_har360", "load_har360",
 ]
 
-__version__ = "1.3.0"
+__version__ = "1.4.0"
