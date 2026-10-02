@@ -19,6 +19,13 @@ from .phi_pi_tuner import (
     AblationConfig,
     DEFAULT_CANDIDATES,
 )
+from .fractal_reproduction import (
+    ConventionalMLP,
+    FractalBranchMLP,
+    FractalReproductionConfig,
+    FractalStructureReproduction,
+    trainable_parameters,
+)
 
 __all__ = [
     "Harmony360",
@@ -38,8 +45,13 @@ __all__ = [
     "TuningCandidate",
     "AblationConfig",
     "DEFAULT_CANDIDATES",
+    "ConventionalMLP",
+    "FractalBranchMLP",
+    "FractalReproductionConfig",
+    "FractalStructureReproduction",
+    "trainable_parameters",
     "PHI", "PI", "ALPHA", "ALPHA_LEGACY", "PLANCK_LENGTH", "HBAR", "C",
     "save_har360", "load_har360",
 ]
 
-__version__ = "1.4.0"
+__version__ = "1.5.0"
