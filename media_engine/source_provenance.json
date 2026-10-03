@@ -1,0 +1,11 @@
+{
+  "media_engine_version": "0.1.0",
+  "core_selection": {
+    "role": "runtime_base",
+    "drive_file_id": "1GawHgpcoJMMfMYvkfugEpxQej5k9jJWA",
+    "drive_title": "harmony360_original_core.py",
+    "drive_folder_lineage": "Harmony360_Original_Core_Recovery/20260624_005825/harmony360_original_core_reconstruction",
+    "sha256": "b14681dcfc821c87d2a887e012061e2b266fbc0f778c54d977146c492e30159c",
+    "policy": "copied verbatim; not rewritten"
+  }
+}
