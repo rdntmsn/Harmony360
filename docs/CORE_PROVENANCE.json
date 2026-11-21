@@ -1,0 +1,28 @@
+{
+  "canonical_authority_granted": false,
+  "core_files_modified": false,
+  "files": {
+    "reconciliation/core_runtime_v1/README.md": "02d107b1921b56c4c63059e61f34d42a0821a2243e5aeddffb7aa5aa11b7b450",
+    "reconciliation/core_runtime_v1/harmony360/__init__.py": "52f8aa29d3730d8b8d64dc690f1d7ba10cbda69a88a4c831737f7e87a3d411e4",
+    "reconciliation/core_runtime_v1/harmony360/constants.py": "f6e8c3087af25c05337d4a4f98ca716d85233673ffc0fdc9a0f34edaa23ab9b9",
+    "reconciliation/core_runtime_v1/harmony360/core.py": "7b47cb6dc1c61346f42350057811b4d6cff9ed2329fe441f1fe004eb617ac686",
+    "reconciliation/core_runtime_v1/harmony360/evidence.py": "3bdc932b32f3ca8ded88ed73f7d145d7113f1c22d7e2dfefc53b2c1c79da1440",
+    "reconciliation/core_runtime_v1/harmony360/ledger.py": "69c7baef3f7675029b3c194b19ece66657401cda399c7fd34a4e69f313b23057",
+    "reconciliation/core_runtime_v1/harmony360/security/__init__.py": "203ce5ed73a24bd6febed1c06d7182185723c3b7c2461f471188d9dc94e0b766",
+    "reconciliation/core_runtime_v1/harmony360/security/crypto_vault.py": "a7f69f1702018de0f197c5ccbdeeecddd60379ce6e385919142190fa90a998df",
+    "reconciliation/core_runtime_v1/harmony360/serialization.py": "2cc1b114a4efe5292eef37106dd2e4e5a26951c99b28557c84d847b2079cc5ca",
+    "reconciliation/core_runtime_v1/harmony360/snapshot.py": "2dc3c13da76e1be1fbd974646a1932f7e98d4d2d5cc374e05fdab3489f915970",
+    "reconciliation/core_runtime_v1/harmony360/sync.py": "82e389dce55d1fc80898a65883ff142c9affb1140f0ccaa834a21bbf8b8c8f01",
+    "reconciliation/core_runtime_v1/pyproject.toml": "440c7d62cc6a5619c6e22abc3b6227a3124fd02c9c24540543d77a2924106e38",
+    "reconciliation/core_runtime_v1/requirements.txt": "424814db389f839aff6bc33ec00f71fd2f813551270146e30f49400217a07001",
+    "reconciliation/core_runtime_v1/tests/test_core.py": "82b9da94fb586a46829f38fc3eecf0ab2d09e22ba2e8dca2c5f675109e9a082d",
+    "reconciliation/core_runtime_v1/tests/test_crypto_vault.py": "5122349349721a73af1362d7f9ba67fedf2878a6294a114ad91e5c95d5dfc14a",
+    "reconciliation/core_runtime_v1/tests/test_serialization.py": "070e42a87ae09dc2aff4513341f3341d925e2d00c924bfac6d5812953b262b0f",
+    "reconciliation/core_runtime_v1/tests/test_snapshot_ledger.py": "43724a728cb877ee0d530512b8f4b0026fdea9b2fb523a35967b8a7ff2cca484"
+  },
+  "repository": "https://github.com/rdntmsn/Harmony360",
+  "schema": "harmony360.orchestration-core-provenance.v0.1",
+  "scope": "Byte integrity against the fetched repository snapshot; no external attestation.",
+  "source_commit": "ef5aafd9bdcd92143c1a2fec5af0d5c3f3135936",
+  "source_directory": "reconciliation/core_runtime_v1"
+}

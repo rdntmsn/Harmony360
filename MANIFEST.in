@@ -1,0 +1,8 @@
+recursive-include docs *.md *.json
+recursive-include requirements *.txt
+recursive-include tests *.py
+recursive-include reconciliation/core_runtime_v1 *.py *.toml *.txt *.md
+include CHANGELOG.md
+prune reconciliation/core_runtime_v1/.pytest_cache
+global-exclude *.pyc *.pyo
+

@@ -1,0 +1,6 @@
+# Candidate profile from the official 1.15.44 release; not a transitive lock.
+# Resolve in an isolated environment and qualify before enabling live adapters.
+crewai==1.15.44
+crewai-tools==1.15.44
+crewai-files==1.15.44
+
