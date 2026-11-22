@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "harmony360-pattern-play"
+version = "0.1.0"
+description = "A playful Python wallpaper studio powered by the Harmony360 numerical core"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = ["numpy>=1.26,<3", "Pillow>=11.3,<13"]
+
+[project.scripts]
+pattern-play-fulfill = "pattern_play.fulfill:main"
+
+[tool.setuptools.packages.find]
+include = ["pattern_play*"]
+

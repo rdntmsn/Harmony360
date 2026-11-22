@@ -1,0 +1,4 @@
+include CORE_PROVENANCE.json README.md VALIDATION.md SELLER_WORKFLOW.yml build_site.py
+recursive-include web *.html *.css *.py *.json
+recursive-include tests *.py
+global-exclude *.pyc *.pyo
