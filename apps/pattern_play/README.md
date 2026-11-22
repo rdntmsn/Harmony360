@@ -10,6 +10,27 @@ five palette colors and stay on the customer's device. The stored recipe and
 order reference contain colors and rendering parameters, not the photo itself.
 There are no model calls, health claims, or resonance-based measurements.
 
+## New in v0.2: your Harmony360 visual reading
+
+The photo now supplies a readable Harmony360 interpretation as well as the art
+palette. The reading shows color coherence, a 3–6–9 brightness-profile fit,
+mirrored balance and a comparison of the image's proportions with φ. Four
+sampled dominant colors and their shares are shown separately from the art
+palette, which also contains a decorative dark anchor.
+
+Once a photo is uploaded, its reading stays attached to that photo while style,
+energy and randomization change the artwork. Choosing a studio palette switches
+the reading back to the generated art. The source thumbnail and label make this
+visible. The photo itself remains on the device.
+
+**Save my Harmony360 reading** downloads a native `.har360` file containing the
+derived inputs, original core outputs, versioned product mappings and the
+artwork reference. This local reading export is separate from the paid wallpaper
+pack; the seller can still reconstruct the art from the compact P1 order note.
+The paid pack's contents and manual payment process remain the same.
+
+See [READINGS.md](READINGS.md) for the exact mappings and interpretation rules.
+
 ## Run and test
 
 ```bash

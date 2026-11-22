@@ -92,7 +92,7 @@ def palette_from_image(raw: bytes) -> tuple[str, ...]:
                     raise ValueError("Choose a photo with fewer than 24 million pixels")
                 image = ImageOps.exif_transpose(image)
                 image.thumbnail((128, 128))
-                if "A" in image.getbands():
+                if "A" in image.getbands() or (image.mode == "P" and "transparency" in image.info):
                     flattened = Image.new("RGBA", image.size, "white")
                     flattened.alpha_composite(image.convert("RGBA"))
                     image = flattened.convert("RGB")
