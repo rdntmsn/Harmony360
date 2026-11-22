@@ -1,0 +1,36 @@
+name: Pattern Play Python app
+
+on:
+  pull_request:
+    paths: ['apps/pattern_play/**', '.github/workflows/pattern-play.yml']
+  push:
+    branches: [main, 'codex/pattern-play-*']
+    paths: ['apps/pattern_play/**', '.github/workflows/pattern-play.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ['3.11', '3.12', '3.13']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install Python app and build tools
+        run: python -m pip install ./apps/pattern_play build
+      - name: Test core rendering and manual order fulfillment
+        run: python -m unittest discover -s apps/pattern_play/tests -v
+      - name: Build the browser app
+        run: python apps/pattern_play/build_site.py
+      - name: Build Python distributions
+        run: python -m build apps/pattern_play --outdir pattern-play-distributions
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pattern-play-python-${{ matrix.python }}
+          path: pattern-play-distributions/*

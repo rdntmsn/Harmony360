@@ -1,0 +1,39 @@
+name: Create a paid Pattern Play pack
+
+on:
+  workflow_dispatch:
+    inputs:
+      order_reference:
+        description: 'P1 design reference from the payment note (no email or transaction ID)'
+        required: true
+        type: string
+      payment_confirmed:
+        description: 'I independently verified the actual $5 payment in PayPal or Cash App'
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    if: ${{ inputs.payment_confirmed }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Pattern Play
+        run: python -m pip install ./apps/pattern_play
+      - name: Render the exact customer design
+        env:
+          ORDER_REFERENCE: ${{ inputs.order_reference }}
+          CONFIRMATION_REFERENCE: manual-seller-confirmation-${{ github.run_id }}
+        run: python -m pattern_play.fulfill --order "$ORDER_REFERENCE" --payment-reference "$CONFIRMATION_REFERENCE" --output orders/wallpaper-pack.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pattern-play-wallpaper-pack
+          path: orders/wallpaper-pack.zip
+          retention-days: 3
